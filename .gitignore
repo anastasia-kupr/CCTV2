@@ -4,6 +4,8 @@ sequelize-config.json
 # Node packages
 /node_modules
 
+/client/node_modules
+
 # Configuration files
 *.env
 
