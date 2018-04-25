@@ -1,0 +1,18 @@
+# migration configmigration-config
+sequelize-config.json
+
+# Node packages
+/node_modules
+
+# Configuration files
+*.env
+
+# IDEs/editors
+.idea
+
+# Temporary files
+*.log
+*.todo
+/tmp
+.~lock*
+*/.DS_Store
