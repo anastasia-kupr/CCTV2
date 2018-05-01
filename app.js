@@ -4,9 +4,13 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+
+const database = require('./database');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var videoRouter = require('./routes/video');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -40,10 +44,15 @@ app.use(function (req, res, next) {
 });
 
 
+models = require('./database').models;
+
+app.set('models', database.models);
+app.set('sequelize', database.sequelize);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/video', videoRouter);
+app.use('/login', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

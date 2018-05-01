@@ -6,6 +6,8 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "buffertools": "^2.1.6",
+    "config": "^1.30.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "~4.16.0",
@@ -13,8 +15,13 @@
     "graceful-fs": "^4.1.11",
     "hawk": "^7.0.7",
     "http-errors": "~1.6.2",
+    "jsonwebtoken": "^8.2.1",
+    "klaw-sync": "^4.0.0",
     "mjpeg-camera": "^1.7.2",
     "morgan": "~1.9.0",
-    "pug": "2.0.0-beta11"
+    "pg": "^7.4.1",
+    "pg-promise": "^8.4.0",
+    "pug": "2.0.0-beta11",
+    "sequelize": "^4.37.6"
   }
 }
