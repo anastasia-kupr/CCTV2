@@ -14,7 +14,6 @@ const sequelize = new Sequelize(dbConfig.uri, {
     },
     logging: dbConfig.logging ? debug : false,
 });
-console.log('2');
 
 const models = {};
 
