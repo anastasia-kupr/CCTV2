@@ -4,6 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+require('dotenv').load({path: process.env.DOTENV || './.env'});
+
 
 const database = require('./database');
 
@@ -17,6 +19,12 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+
+models = require('./database').models;
+
+app.set('models', database.models);
+app.set('sequelize', database.sequelize);
 
 app.use(logger('dev'));
 app.use(express.json());

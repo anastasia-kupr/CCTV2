@@ -35,15 +35,6 @@ module.exports = (sequelize, Sequelize) => {
             type: Sequelize.ENUM('user', 'admin'),
             default: 'user',
         },
-        isActive: {
-            field: 'is_active',
-            type: Sequelize.BOOLEAN,
-            defaultValue: false,
-        },
-        lastLoginAt: {
-            type: Sequelize.DATE,
-            field: 'last_login_at',
-        },
         createdAt: {
             type: Sequelize.DATE,
             field: 'created_at',
