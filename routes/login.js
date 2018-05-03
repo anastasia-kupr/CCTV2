@@ -106,7 +106,7 @@ router.get('/users',
 
 router.get('/user',
     errors.wrap(async (req, res) => {
-        console.log('12333333');
+        console.log('1233333');
         const models = require('../models');
         const user = await models.User.create({email: '123', password: '321'});
         if (!user) throw errors.NotFoundError('User not created, invalid or missing credentials');
