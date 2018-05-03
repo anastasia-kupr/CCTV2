@@ -4,49 +4,41 @@ var router = express.Router();
 let fs = require('fs');
 let path = require('path');
 
+// router.get('/', function (req, res, next) {
+//     let path = 'assets/sample.mp4';
+//     let stat = fs.statSync(path);
+//     let fileSize = stat.size;
+//     let range = req.headers.range;
 
+//     if (range) {
+//         console.log('range');
+//         let parts = range.replace(/bytes=/, "").split("-");
+//         let start = parseInt(parts[0], 10);
+//         let end = parts[1]
+//             ? parseInt(parts[1], 10)
+//             : fileSize - 1;
 
-var MjpegCamera = require('mjpeg-camera');
-var FileOnWrite = require('file-on-write');
+//         let chunksize = (end - start) + 1;
+//         let file = fs.createReadStream(path, {start, end});
+//         let head = {
+//             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+//             'Accept-Ranges': 'bytes',
+//             'Content-Length': chunksize,
+//             'Content-Type': 'video/mp4',
+//         };
 
-
-
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-    let path = 'assets/sample.mp4';
-    let stat = fs.statSync(path);
-    let fileSize = stat.size;
-    let range = req.headers.range;
-
-    if (range) {
-        console.log('range');
-        let parts = range.replace(/bytes=/, "").split("-");
-        let start = parseInt(parts[0], 10);
-        let end = parts[1]
-            ? parseInt(parts[1], 10)
-            : fileSize - 1;
-
-        let chunksize = (end - start) + 1;
-        let file = fs.createReadStream(path, {start, end});
-        let head = {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunksize,
-            'Content-Type': 'video/mp4',
-        };
-
-        res.writeHead(206, head);
-        file.pipe(res);
-    } else {
-        console.log('else');
-        let head = {
-            'Content-Length': fileSize,
-            'Content-Type': 'video/mp4',
-        }
-        res.writeHead(200, head);
-        fs.createReadStream(path).pipe(res)
-    }
-});
+//         res.writeHead(206, head);
+//         file.pipe(res);
+//     } else {
+//         console.log('else');
+//         let head = {
+//             'Content-Length': fileSize,
+//             'Content-Type': 'video/mp4',
+//         }
+//         res.writeHead(200, head);
+//         fs.createReadStream(path).pipe(res)
+//     }
+// });
 
 let vileList = [
     {

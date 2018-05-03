@@ -2,7 +2,7 @@
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const errors = require('../errors');
+// const errors = require('../errors');
 
 module.exports = (sequelize, Sequelize) => {
     const User = sequelize.define('User', {
@@ -63,10 +63,10 @@ module.exports = (sequelize, Sequelize) => {
             where: {email: email},
             attributes: [...User.publicAttributes, 'password'],
         });
-        if (!user) throw errors.NotFoundError('User not found!');
-        if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
-        if (!user.isActive) throw errors.NotAllowedError('Your account has ben disabled, please contact support.');
-        if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
+        // if (!user) throw errors.NotFoundError('User not found!');
+        // if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
+        // if (!user.isActive) throw errors.NotAllowedError('Your account has ben disabled, please contact support.');
+        // if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
         return user;
     };
 

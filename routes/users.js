@@ -1,9 +1,20 @@
-var express = require('express');
-var router = express.Router();
+const router = require('express').Router();
+const errors = require('../errors');
+const models = require('../models');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+router.get('/',
+    errors.wrap(async (req, res) => {
+      const users = await models.User.findAll({
+          attributes: [
+              'uuid',
+              'email',
+              'firstName',
+              'lastName',
+              'role'
+          ]
+      });
+      res.json(users);
+    })
+);
 
 module.exports = router;

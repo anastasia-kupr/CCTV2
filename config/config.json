@@ -1,6 +1,5 @@
 {
   "development": {
-    "use_env_variable": "DATABASE_URL",
     "username": "postgres",
     "password": "postgres",
     "database": "CCTV",
@@ -8,7 +7,6 @@
     "dialect": "postgres"
   },
   "test": {
-    "use_env_variable": "DATABASE_URL",
     "username": "postgres",
     "password": "postgres",
     "database": "CCTV",
@@ -17,10 +15,6 @@
   },
   "production": {
     "use_env_variable": "DATABASE_URL",
-    "username": "postgres",
-    "password": "postgres",
-    "database": "CCTV",
-    "host": "localhost",
     "dialect": "postgres"
   }
 }

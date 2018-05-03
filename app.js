@@ -10,9 +10,10 @@ require('dotenv').load({path: process.env.DOTENV || './.env'});
 // const database = require('./database');
 
 var indexRouter = require('./routes/index');
+var userRouter = require('./routes/user');
 var usersRouter = require('./routes/users');
-var videoRouter = require('./routes/video');
 var loginRouter = require('./routes/login');
+var videoRouter = require('./routes/video');
 
 var app = express();
 
@@ -58,6 +59,7 @@ app.use(function (req, res, next) {
 // app.set('sequelize', database.sequelize);
 
 app.use('/', indexRouter);
+app.use('/user', userRouter);
 app.use('/users', usersRouter);
 app.use('/video', videoRouter);
 app.use('/login', loginRouter);
