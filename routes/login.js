@@ -104,4 +104,19 @@ router.get('/users',
     })
 );
 
+router.get('/user',
+    errors.wrap(async (req, res) => {
+        console.log('12333333');
+        const models = require('../models');
+        const user = await models.User.create({email: '123', password: '321'});
+        if (!user) throw errors.NotFoundError('User not created, invalid or missing credentials');
+        const token = await user.generateToken();
+        delete user.dataValues.password;
+        return res.json({
+            user: user,
+            token: token,
+        });   
+    })
+);
+
 module.exports = router;

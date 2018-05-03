@@ -7,7 +7,7 @@ var logger = require('morgan');
 require('dotenv').load({path: process.env.DOTENV || './.env'});
 
 
-const database = require('./database');
+// const database = require('./database');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -21,10 +21,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 
-models = require('./database').models;
+// models = require('./database').models;
 
-app.set('models', database.models);
-app.set('sequelize', database.sequelize);
+// app.set('models', database.models);
+// app.set('sequelize', database.sequelize);
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -52,10 +52,10 @@ app.use(function (req, res, next) {
 });
 
 
-models = require('./database').models;
+// models = require('./database').models;
 
-app.set('models', database.models);
-app.set('sequelize', database.sequelize);
+// app.set('models', database.models);
+// app.set('sequelize', database.sequelize);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
