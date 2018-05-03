@@ -2,7 +2,8 @@
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-// const errors = require('../errors');
+const errors = require('../errors');
+const authHelper = require('../helpers/auth.helper');
 
 module.exports = (sequelize, Sequelize) => {
     const User = sequelize.define('User', {
@@ -44,29 +45,29 @@ module.exports = (sequelize, Sequelize) => {
             field: 'updated_at',
         },
     }, {
-        tableName: 'users',
-        timestamps: true,
-        hooks: {
-            beforeValidate: async(user) => {
+            tableName: 'users',
+            timestamps: true,
+            hooks: {
+                beforeValidate: async (user) => {
 
+                },
             },
-        },
-    });
+        });
 
     /**
      * @param {string} email
      * @param {string} password
      * @return {object} user
      */
+
     User.authenticate = async (email, password) => {
         const user = await User.findOne({
             where: {email: email},
             attributes: [...User.publicAttributes, 'password'],
         });
-        // if (!user) throw errors.NotFoundError('User not found!');
-        // if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
-        // if (!user.isActive) throw errors.NotAllowedError('Your account has ben disabled, please contact support.');
-        // if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
+        if (!user) throw errors.NotFoundError('User not found!');
+        if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
+        if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
         return user;
     };
 
@@ -75,11 +76,27 @@ module.exports = (sequelize, Sequelize) => {
      * @return {any} hash
      */
     User.hashPassword = (password) => {
+        console.log('password=', password);
         return crypto
             .createHmac('sha512', process.env.SALT || 'salt')
             .update(password)
             .digest('hex');
     };
+
+    User.sendCode = async (email, password) => {
+        console.log('send');
+        let user = await User.findOne({
+            where: {email: email},
+        });
+        if (!user) throw errors.NotFoundError('User not found!');
+        if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
+        if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
+
+        authHelper.sendCode(user);
+        return user;
+
+
+    }
 
     /**
      * Generate Authentication Token for user

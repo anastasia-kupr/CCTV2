@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const errors = require('../errors');
 const models = require('../models');
+const authenticate = require('../middleware/authenticate');
 
 router.put('/:uuid',
+    authenticate(['admin']),
     errors.wrap(async (req, res) => {
         const currentUser = res.locals.user;
         const targetUser = req.body;
@@ -14,7 +16,7 @@ router.put('/:uuid',
         if (!existingUser) throw errors.NotFoundError('User not found');
         const admins = await models.User.findAll({where: {role: 'admin'}});
         if (admins.length === 1 && existingUser.role === 'admin') {
-            if (targetUser.role !== userRoles.ADMIN || !targetUser.isActive) {
+            if (targetUser.role !== userRoles.ADMIN) {
                 throw errors.Forbidden('Unable to unassign last admin record.');
             }
         }
@@ -24,6 +26,7 @@ router.put('/:uuid',
 );
 
 router.post('/',
+    authenticate(['admin']),
     errors.wrap(async (req, res) => {
         const existingUser = await models.User.findOne({where: {email: req.body.email}});
         if (existingUser) throw errors.InvalidInputError('User with same email already exists');
@@ -34,6 +37,7 @@ router.post('/',
 );
 
 router.get('/:uuid',
+    authenticate(),
     errors.wrap(async (req, res) => {
         console.log('req.params.uuid=', req.params.uuid);
         const user = await models.User.findById(req.params.uuid, {raw: true});
@@ -43,6 +47,7 @@ router.get('/:uuid',
 );
 
 router.delete('/:uuid',
+    authenticate(['admin']),
     errors.wrap(async (req, res) => {
         const admins = await models.User.findAll({where: {role: 'admin'}});
         const user = await models.User.findById(req.params.uuid);
