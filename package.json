@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "buffertools": "^2.1.6",
@@ -12,6 +12,8 @@
     "debug": "~2.6.9",
     "dotenv": "^5.0.1",
     "express": "~4.16.0",
+    "express-reload": "^1.1.0",
+    "ffmpeg-stream": "^0.5.0",
     "file-on-write": "^1.1.1",
     "graceful-fs": "^4.1.11",
     "hawk": "^7.0.7",

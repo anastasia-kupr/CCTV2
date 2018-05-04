@@ -1,259 +1,187 @@
 var express = require('express');
 var router = express.Router();
+const models = require('../models');
+const authenticate = require('../middleware/authenticate');
+const errors = require('../errors');
 
 let fs = require('fs');
 let path = require('path');
 
-// router.get('/', function (req, res, next) {
-//     let path = 'assets/sample.mp4';
-//     let stat = fs.statSync(path);
-//     let fileSize = stat.size;
-//     let range = req.headers.range;
+let time = '';
+let framesFolder = '';
+let videoFolder = '';
+let camera = undefined;
+let videoList = [];
 
-//     if (range) {
-//         console.log('range');
-//         let parts = range.replace(/bytes=/, "").split("-");
-//         let start = parseInt(parts[0], 10);
-//         let end = parts[1]
-//             ? parseInt(parts[1], 10)
-//             : fileSize - 1;
-
-//         let chunksize = (end - start) + 1;
-//         let file = fs.createReadStream(path, {start, end});
-//         let head = {
-//             'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-//             'Accept-Ranges': 'bytes',
-//             'Content-Length': chunksize,
-//             'Content-Type': 'video/mp4',
-//         };
-
-//         res.writeHead(206, head);
-//         file.pipe(res);
-//     } else {
-//         console.log('else');
-//         let head = {
-//             'Content-Length': fileSize,
-//             'Content-Type': 'video/mp4',
-//         }
-//         res.writeHead(200, head);
-//         fs.createReadStream(path).pipe(res)
-//     }
-// });
-
-let vileList = [
-    {
-        id: '01',
-        name: 'record_2018-05-03_211024.mp4',
-        date: '2018-05-03_211407'
-    },
-    {
-        id: '02',
-        name: 'record_2018-05-03_211236.mp4',
-        date: '2018-05-03_211407'
-    },
-    {
-        id: '03',
-        name: 'record_2018-05-03_211407.mp4',
-        date: '2018-05-03_211407'
-    },
-]
-
-router.get('/list', function (req, res, next) {
-    res.send(vileList);
-})
+router.get('/list',
+    authenticate(),
+    errors.wrap(async (req, res) => {
+        let i = 0;
+        videoList = [];
+        if (fs.existsSync(__dirname + '/../assets/video'))
+            fs.readdirSync(__dirname + '/../assets/video/').forEach(file => {
+                let date = new Date(+file.substr(6, 13))
+                videoList.push({
+                    id: i++,
+                    name: file,
+                    date: date
+                });
+            });
+        res.send(videoList);
+    })
+);
 
 
-router.get('/:id', function (req, res, next) {
-    console.log('req.params.uuid=', req.params.id);
+router.get('/record/:id',
+    errors.wrap(async (req, res) => {
 
-    let id = req.params.id;
-
-    let index = vileList.findIndex(function (item) {
-        return item.id === id;
-    });
-
-    let name = vileList[index].name;
-
-    console.log('name=', name);
-    let path = 'assets/' + name;
-    console.log('path=', path);
-    let stat = fs.statSync(path);
-    console.log('stat=', stat);
-    let fileSize = stat.size;
-    console.log('fileSize=', fileSize);
-    let range = req.headers.range;
-    console.log('range=', range);
-
-
-    console.log('2=');
-
-    if (range) {
-        console.log('range');
-        let parts = range.replace(/bytes=/, "").split("-");
-        let start = parseInt(parts[0], 10);
-        let end = parts[1]
-            ? parseInt(parts[1], 10)
-            : fileSize - 1;
-
-        let chunksize = (end - start) + 1;
-        let file = fs.createReadStream(path, {start, end});
-        let head = {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunksize,
-            'Content-Type': 'video/mp4',
-        };
-
-
-        console.log('3=');
-        res.writeHead(206, head);
-        file.pipe(res);
-    } else {
-
-        console.log('else=');
-        console.log('else');
-        let head = {
-            'Content-Length': fileSize,
-            'Content-Type': 'video/mp4',
+        let id = +req.params.id;
+        if (!videoList.length) {
+            let i = 0;
+            videoList = [];
+            if (fs.existsSync(__dirname + '/../assets/video')) 
+                fs.readdirSync(__dirname + '/../assets/video/').forEach(file => {
+                    let date = new Date(+file.substr(6, 13));
+                    videoList.push({
+                        id: i++,
+                        name: file,
+                        date: date
+                    });
+                });
         }
-        res.writeHead(200, head);
-        fs.createReadStream(path).pipe(res)
-    }
-})
 
+        let index = videoList.findIndex(function (item) {
+            return item.id === id;
+        });
 
+        let name = videoList[index].name;
 
-router.get('/2', function (req, res, next) {
+        let path = __dirname + '/../assets/video/' + name;
+        let stat = fs.statSync(path);
+        let fileSize = stat.size;
+        let range = req.headers.range;
 
-    // Create a writable stream to generate files
-    var fileWriter = new FileOnWrite({
-        path: './assets/frames',
-        ext: '.jpeg',
-        filename: function (frame) {
-            return frame.name + '-' + frame.time;
-        },
-        transform: function (frame) {
-            return frame.data;
+        if (range) {
+            let parts = range.replace(/bytes=/, "").split("-");
+            let start = parseInt(parts[0], 10);
+            let end = parts[1]
+                ? parseInt(parts[1], 10)
+                : fileSize - 1;
+
+            let chunksize = (end - start) + 1;
+            let file = fs.createReadStream(path, {start, end});
+            let head = {
+                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                'Accept-Ranges': 'bytes',
+                'Content-Length': chunksize,
+                'Content-Type': 'video/mp4',
+            };
+
+            res.writeHead(206, head);
+            file.pipe(res);
+        } else {
+            let head = {
+                'Content-Length': fileSize,
+                'Content-Type': 'video/mp4',
+            }
+            res.writeHead(200, head);
+            fs.createReadStream(path).pipe(res)
         }
-    });
+    })
+);
 
-    // Create an MjpegCamera instance
-    var camera = new MjpegCamera({
-        name: 'backdoor',
-        user: 'admin',
-        password: 'wordup',
-        url: 'http://192.168.1.133:8080/video',
-        motion: true
-    });
 
-    // Pipe frames to our fileWriter so we gather jpeg frames into the /frames folder
-    camera.pipe(fileWriter);
+router.delete('/record/:name',
+    authenticate(['admin']),
+    errors.wrap(async (req, res) => {
+        if (!fs.existsSync(__dirname + '/../assets/video')) return;
+        fs.unlink(__dirname + '/../assets/video/' + req.params.name, (err) => {
+            if (err) throw err;
+            console.log(__dirname + '/../assets/video/' + req.params.name + ' was deleted');
+        });
+        res.send({});
+    })
+);
 
-    // Start streaming
-    console.log('start');
-    camera.start();
 
-    // Stop recording after an hour
-    setTimeout(function () {
+router.get('/start-record',
+    authenticate(['admin']),
+    errors.wrap(async (req, res) => {
+        console.log('start recording');
+        let MjpegCamera = require('mjpeg-camera');
+        let FileOnWrite = require('file-on-write');
 
-        console.log('stop');
-        // Stahp
+        let number = 0;
+        time = '' + Date.now();
+        if (!fs.existsSync('./assets/frames')) fs.mkdirSync('./assets/frames');
+        framesFolder = __dirname + '/../assets/frames/';
+        fs.mkdirSync(framesFolder + time);
+        if (!fs.existsSync(__dirname + '/../assets/video')) fs.mkdirSync(__dirname + '/../assets/video');
+        videoFolder = __dirname + '/../assets/video/';
+        let fileWriter = new FileOnWrite({
+            path: framesFolder + time,
+            ext: '.jpeg',
+            filename: function (frame) {
+                number++;
+                let name = "" + number;
+                if (name.length < 8) name = ((new Array(8)).join('0') + name).slice(-8);
+                return frame.name + '-' + name;
+            },
+            transform: function (frame) {
+                return frame.data;
+            }
+        });
+
+        camera = new MjpegCamera({
+            name: 'backdoor',
+            user: 'admin',
+            password: 'wordup',
+            url: 'http://192.168.1.133:8080/video',
+            motion: true
+        });
+
+        camera.pipe(fileWriter);
+
+        camera.start();
+        res.send({});
+    })
+);
+
+router.get('/stop-record',
+    authenticate(['admin']),
+    errors.wrap(async (req, res) => {
+        console.log('stop recording');
+
         camera.stop();
 
-        // Get one last frame
-        // Will open a connection long enough to get a single frame and then
-        // immediately close the connection
-        camera.getScreenshot(function (err, frame) {
-            fs.writeFile('final.jpeg', frame, process.exit);
+        let frames = [];
+
+        fs.readdirSync(framesFolder + time).forEach(file => {
+            frames.push(framesFolder + time + '/' + file);
         });
-        res.send('ok');
 
-    }, 5 * 1000);
-});
+        let ffmpeg = require('ffmpeg-stream').ffmpeg;
 
-router.get('/3', function (req, res, next) {
-    // Live video stream management for HTML5 video. Uses FFMPEG to connect to H.264 camera stream, 
-    // Camera stream is remuxed to a MP4 stream for HTML5 video compatibility and segments are recorded for later playback
-    // For live streaming, create a fragmented MP4 file with empty moov (no seeking possible).
+        const conv = ffmpeg();
+        const input = conv.input({f: 'image2pipe', r: 20});
+        conv.output(videoFolder + '/video-' + time + '.mp4', {vcodec: 'libx264', pix_fmt: 'yuv420p'});
 
-    var url = require('url');
-    var reqUrl = url.parse(req.url, true);
-    var cameraName = typeof reqUrl.pathname === "string" ? reqUrl.pathname.substring(1) : undefined;
-    if (cameraName) {
-        try {
-            cameraName = decodeURIComponent(cameraName);
-        } catch (exception) {
-            console.log("Live Camera Streamer bad request received - " + reqUrl);         // Can throw URI malformed exception.
-            return false;
-        }
-    } else {
-        console.log("Live Camera Streamer - incorrect camera requested " + cameraName);         // Can throw URI malformed exception.
-        return false;
-    }
+        frames.map(filename => () => {
+            return new Promise((fulfill, reject) =>
+                fs.createReadStream(filename)
+                    .on('end', fulfill)
+                    .on('error', reject)
+                    .pipe(input, {end: false})
+            )
+        })
+            .reduce((prev, next) => prev.then(next), Promise.resolve())
+            .then(() => input.end())
 
-    console.log("Client connection made to live Camera Streamer requesting camera: " + cameraName)
+        conv.run();
+        res.send({});
 
-    console.log('1');
-    res.writeHead(200, {
-        //'Transfer-Encoding': 'binary'
-        "Connection": "keep-alive"
-        , "Content-Type": "video/mp4"
-        //, 'Content-Length': chunksize            // ends after all bytes delivered
-        , "Accept-Ranges": "bytes"                 // Helps Chrome
-    });
-    console.log('2');
-
-    for (var cam in cameras) {
-        if (cameraName.toLowerCase() === cameras[cam].name.toLowerCase()) {
-            if (!cameras[cam].liveStarted) {
-                cameras[cam].liveffmpeg = child_process.spawn("ffmpeg", [
-                    "-rtsp_transport", "tcp", "-i", cameras[cam].rtsp, "-vcodec", "copy", "-f", "mp4", "-movflags", "frag_keyframe+empty_moov",
-                    "-reset_timestamps", "1", "-vsync", "1", "-flags", "global_header", "-bsf:v", "dump_extra", "-y", "-"   // output to stdout
-                ], {detached: false});
-
-                cameras[cam].liveStarted = true;
-                console.log('3');
-                cameras[cam].liveffmpeg.stdout.pipe(res);
-                console.log('4');
-                cameras[cam].liveffmpeg.stdout.on("data", function (data) {
-                });
-
-                cameras[cam].liveffmpeg.stderr.on("data", function (data) {
-                    console.log(cameras[cam].name + " -> " + data);
-                });
-
-                cameras[cam].liveffmpeg.on("exit", function (code) {
-                    console.log(cameras[cam].name + " live FFMPEG terminated with code " + code);
-                });
-
-                cameras[cam].liveffmpeg.on("error", function (e) {
-                    console.log(cameras[cam].name + " live FFMPEG system error: " + e);
-                });
-            }
-            break;                       // Keep cam variable active with the selected cam number
-        }
-    }
-    if (cameras[cam].liveStarted === false) {
-        // Didn't select a camera
-    }
-
-    req.on("close", function () {
-        shutStream("closed");
     })
+);
 
-    req.on("end", function () {
-        shutStream("ended");
-    });
-
-    function shutStream(event) {
-        //TODO: Stream is only shut when the browser has exited, so switching screens in the client app does not kill the session
-        console.log("Live streaming connection to client has " + event)
-        if (typeof cameras[cam].liveffmpeg !== "undefined") {
-            cameras[cam].liveffmpeg.kill();
-            cameras[cam].liveStarted = false;
-        }
-    }
-    return true
-})
 
 module.exports = router;

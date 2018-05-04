@@ -5,6 +5,8 @@ const errors = require('../errors');
 module.exports = function authenticate(roles) {
     return errors.wrap(async function (req, res, next) {
 
+        console.log('authenticate, req.headers=', req.headers);
+
         const models = require('../models');
 
         if (!('authorization' in req.headers)) return res.status(403).send('Missing authorization header');
