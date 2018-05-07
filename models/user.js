@@ -3,7 +3,6 @@ const _ = require('lodash');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const errors = require('../errors');
-const authHelper = require('../helpers/auth.helper');
 
 module.exports = (sequelize, Sequelize) => {
     const User = sequelize.define('User', {
@@ -59,12 +58,6 @@ module.exports = (sequelize, Sequelize) => {
             },
         });
 
-    /**
-     * @param {string} email
-     * @param {string} password
-     * @return {object} user
-     */
-
     User.authenticate = async (email, password) => {
         const user = await User.findOne({
             where: {email: email},
@@ -76,37 +69,13 @@ module.exports = (sequelize, Sequelize) => {
         return user;
     };
 
-    /**
-     * @param {string} password
-     * @return {any} hash
-     */
     User.hashPassword = (password) => {
-        console.log('password=', password);
         return crypto
             .createHmac('sha512', process.env.SALT || 'salt')
             .update(password)
             .digest('hex');
     };
 
-    User.sendCode = async (email, password) => {
-        console.log('send');
-        let user = await User.findOne({
-            where: {email: email},
-        });
-        if (!user) throw errors.NotFoundError('User not found!');
-        if (!user.password) throw errors.NotAllowedError('Password not set! Please contact support.');
-        if (user.password !== User.hashPassword(password)) throw errors.UnauthorizedError('Invalid credentials');
-
-        authHelper.sendCode(user);
-        return user;
-
-
-    }
-
-    /**
-     * Generate Authentication Token for user
-     * @return {{type: string, expiresIn: *, accessToken: *}}
-     */
     User.prototype.generateToken = async function () {
         const salt = process.env.SALT || 'salt';
         const data = {
@@ -121,7 +90,6 @@ module.exports = (sequelize, Sequelize) => {
             accessToken: jwt.sign(data, salt, {expiresIn: tokenLifeTime}),
         };
     };
-
 
     User.publicAttributes = [
         ..._.without(_.keys(User.rawAttributes), 'createdAt', 'updatedAt', 'password'),

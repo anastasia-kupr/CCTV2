@@ -8,7 +8,6 @@ router.post('/',
 
         const user = await models.User.authenticate(req.body.email, req.body.password);
 
-        console.log('sendCode');
         if (!user.twoFactorAuth) {
             const token = await user.generateToken();
             delete user.dataValues.password;
@@ -49,13 +48,7 @@ router.post('/',
             res.json({});
             return;
         };
-
-        console.log('secret=', secret);
-
-        delete user.dataValues.password;
-        res.json({
-            user: user
-        });
+        res.json({});
     })
 );
 
@@ -72,7 +65,6 @@ router.post('/:code',
             },
         });
 
-        console.log('codeData.createdAt=', codeData.createdAt);
         if (!codeData) res.sendStatus(403);
 
         await codeData.destroy();

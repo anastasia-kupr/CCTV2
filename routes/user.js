@@ -39,7 +39,6 @@ router.post('/',
 router.get('/:uuid',
     authenticate(),
     errors.wrap(async (req, res) => {
-        console.log('req.params.uuid=', req.params.uuid);
         const user = await models.User.findById(req.params.uuid, {raw: true});
         if (!user) throw errors.NotFoundError('User not found');
         res.json(user);
