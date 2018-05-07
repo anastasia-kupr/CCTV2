@@ -31,6 +31,11 @@ module.exports = (sequelize, Sequelize) => {
                 this.setDataValue('password', User.hashPassword(password));
             },
         },
+        twoFactorAuth: {
+            field: 'two_factor_auth',
+            type: Sequelize.BOOLEAN,
+            default: false
+        },
         role: {
             field: 'role',
             type: Sequelize.ENUM('user', 'admin'),

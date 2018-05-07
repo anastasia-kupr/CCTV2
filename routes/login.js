@@ -9,6 +9,15 @@ router.post('/',
         const user = await models.User.authenticate(req.body.email, req.body.password);
 
         console.log('sendCode');
+        if (!user.twoFactorAuth) {
+            const token = await user.generateToken();
+            delete user.dataValues.password;
+            res.json({
+                user: user,
+                token: token,
+            });
+            return;
+        }
 
         let code = await models.Code.findOne({
             where: {userID: user.uuid},
@@ -36,7 +45,9 @@ router.post('/',
                 console.log('Message sent: %s', info.messageId);
                 console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
             });
-            code = await models.Code.create({userID: user.uuid, code: secret})
+            code = await models.Code.create({userID: user.uuid, code: secret});
+            res.json({});
+            return;
         };
 
         console.log('secret=', secret);
