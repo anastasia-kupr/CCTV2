@@ -7,7 +7,7 @@ sequelize-config.json
 /client/node_modules
 
 
-/assets
+/public/assets
 
 # Configuration files
 *.env

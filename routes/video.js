@@ -20,10 +20,9 @@ let setVideoList = function() {
     let i = 0;
     videoList = [];
     dates = [];
-    if (fs.existsSync(__dirname + '/../assets/video')) {
-        fs.readdirSync(__dirname + '/../assets/video/').forEach(file => {
-            let date = new Date(+file.substr(6, 13));
-            let stat = fs.statSync(__dirname + '/../assets/video/' + file);
+    if (fs.existsSync(__dirname + '/../public/assets/video')) {
+        fs.readdirSync(__dirname + '/../public/assets/video/').forEach(file => {
+            let stat = fs.statSync(__dirname + '/../public/assets/video/' + file);
             let day = moment(stat.mtimeMs).format('LL');
             let time = moment(stat.mtimeMs).format('LTS');
             videoList.push({
@@ -67,7 +66,7 @@ router.get('/record/:id',
 
         let name = videoList[index].name;
 
-        let path = __dirname + '/../assets/video/' + name;
+        let path = __dirname + '/../public/assets/video/' + name;
         let stat = fs.statSync(path);
         let fileSize = stat.size;
         let range = req.headers.range;
@@ -105,12 +104,11 @@ router.get('/record/:id',
 router.delete('/record/:name',
     authenticate(['admin']),
     errors.wrap(async (req, res) => {
-        if (!fs.existsSync(__dirname + '/../assets/video')) return;
-        fs.unlink(__dirname + '/../assets/video/' + req.params.name, (err) => {
+        if (!fs.existsSync(__dirname + '/../public/assets/video')) return;
+        fs.unlink(__dirname + '/../public/assets/video/' + req.params.name, (err) => {
             if (err) throw err;
-            console.log(__dirname + '/../assets/video/' + req.params.name + ' was deleted');
         });
-        res.send({});
+        res.sendStatus(204);
     })
 );
 
@@ -124,11 +122,11 @@ router.get('/start-record',
 
         let number = 0;
         time = '' + Date.now();
-        if (!fs.existsSync('./assets/frames')) fs.mkdirSync('./assets/frames');
-        framesFolder = __dirname + '/../assets/frames/';
+        if (!fs.existsSync('./public/assets/frames')) fs.mkdirSync('./public/assets/frames');
+        framesFolder = __dirname + '/../public/assets/frames/';
         fs.mkdirSync(framesFolder + time);
-        if (!fs.existsSync(__dirname + '/../assets/video')) fs.mkdirSync(__dirname + '/../assets/video');
-        videoFolder = __dirname + '/../assets/video/';
+        if (!fs.existsSync(__dirname + '/../public/assets/video')) fs.mkdirSync(__dirname + '/../public/assets/video');
+        videoFolder = __dirname + '/../public/assets/video/';
         let fileWriter = new FileOnWrite({
             path: framesFolder + time,
             ext: '.jpeg',
@@ -143,11 +141,12 @@ router.get('/start-record',
             }
         });
 
+        console.log('camera');
         camera = new MjpegCamera({
-            name: 'backdoor',
+            name: 'myCamera',
             user: 'admin',
-            password: 'wordup',
-            url: 'http://192.168.1.133:8080/video',
+            password: 'admin',
+            url: process.env.CAMERA_URL,
             motion: true
         });
 

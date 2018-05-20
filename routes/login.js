@@ -21,33 +21,34 @@ router.post('/',
         let code = await models.Code.findOne({
             where: {userID: user.uuid},
         });
-        if (!code) {
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'lisa347917@gmail.com',
-                    pass: process.env.NOIIFICATION_ACCOUNT_PASSWORD,
-                }
-            });
-
-            var secret = Math.round(Math.random() * 100000);
-            let mailOptions = {
-                from: '"CCTV support" <lisa347917@gmail.com>',
-                to: `${user.email}, ${user.email}`,
-                subject: 'Authorization code',
-                html: `<div>Hello, <b>${user.firstName} ${user.lastName}</b></div><div>Your code: <b>${secret}</b></div>`
-            };
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    return console.log(error);
-                }
-                console.log('Message sent: %s', info.messageId);
-                console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-            });
-            code = await models.Code.create({userID: user.uuid, code: secret});
-            res.json({});
+        if (code) {
+            throw errors.UnauthorizedError('Authentification error.');
             return;
+        }
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.SUPPORT_ACCOUNT_EMAIL,
+                pass: process.env.SUPPORT_ACCOUNT_PASSWORD,
+            }
+        });
+
+        var secret = Math.round(Math.random() * 100000);
+        let mailOptions = {
+            from: `"CCTV support"  ${process.env.SUPPORT_ACCOUNT_EMAIL}`,
+            to: `${user.email}, ${user.email}`,
+            subject: 'Authorization code',
+            html: `<div>Hello, <b>${user.firstName} ${user.lastName}</b></div><div>Your code: <b>${secret}</b></div>`
         };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return console.log(error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        });
+        code = await models.Code.create({userID: user.uuid, code: secret});
         res.json({});
     })
 );
@@ -65,7 +66,10 @@ router.post('/:code',
             },
         });
 
-        if (!codeData) res.sendStatus(403);
+        if (!codeData) {
+            throw errors.UnauthorizedError('Authentification error.');
+            return;
+        }
 
         await codeData.destroy();
 
@@ -75,15 +79,6 @@ router.post('/:code',
             user: user,
             token: token,
         });
-    })
-);
-
-// dev router
-router.get('/',
-    errors.wrap(async (req, res) => {
-        const User = require('../models').User;
-        const user = User.create({email: 'admin', password: 'admin', role: 'admin'});
-        return res.json(user);
     })
 );
 

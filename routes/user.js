@@ -3,28 +3,6 @@ const errors = require('../errors');
 const models = require('../models');
 const authenticate = require('../middleware/authenticate');
 
-router.put('/:uuid',
-    authenticate(['admin']),
-    errors.wrap(async (req, res) => {
-        const currentUser = res.locals.user;
-        const targetUser = req.body;
-        // if ((currentUser.role !== userRoles.ADMIN) && (currentUser.uuid !== targetUser.uuid)) {
-        //     throw errors.Forbidden('You have no permission to');
-        // }
-
-        const existingUser = await models.User.findById(req.params.uuid);
-        if (!existingUser) throw errors.NotFoundError('User not found');
-        const admins = await models.User.findAll({where: {role: 'admin'}});
-        if (admins.length === 1 && existingUser.role === 'admin') {
-            if (targetUser.role !== userRoles.ADMIN) {
-                throw errors.Forbidden('Unable to unassign last admin record.');
-            }
-        }
-        const result = await existingUser.update(targetUser);
-        res.json(result);
-    })
-);
-
 router.post('/',
     authenticate(['admin']),
     errors.wrap(async (req, res) => {
@@ -36,11 +14,27 @@ router.post('/',
     })
 );
 
+router.put('/:uuid',
+    authenticate(),
+    errors.wrap(async (req, res) => {
+        const currentUser = res.locals.user;
+        const targetUser = req.body;
+
+        const existingUser = await models.User.findById(req.params.uuid);
+        if (!existingUser) throw errors.NotFoundError('User not found');
+
+        if (currentUser.uuid!==existingUser.uuid && currentUser.role!=='admin') throw errors.Forbidden('You have no permission to');
+
+        const result = await existingUser.update(targetUser);
+        res.json(result);
+    })
+);
+
 router.get('/:uuid',
     authenticate(),
     errors.wrap(async (req, res) => {
         const user = await models.User.findById(req.params.uuid, {raw: true});
-        if (!user) throw errors.NotFoundError('User not found');
+        if (!user) throw errors.NotFoundError('User is not found');
         res.json(user);
     })
 );

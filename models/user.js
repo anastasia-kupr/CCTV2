@@ -83,7 +83,8 @@ module.exports = (sequelize, Sequelize) => {
             userRole: this.userRole,
         };
 
-        const tokenLifeTime = process.env.TOKEN_LIFE_TIME || 600000;
+        const tokenLifeTime = +process.env.TOKEN_LIFE_TIME || 600000;
+        console.log('tokenLifeTime=', tokenLifeTime);
         return {
             type: 'Bearer',
             expiresIn: tokenLifeTime,
