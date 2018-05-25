@@ -5,6 +5,7 @@ const nodemailer = require('nodemailer');
 
 router.post('/',
     errors.wrap(async (req, res) => {
+        console.log('login');
 
         const user = await models.User.authenticate(req.body.email, req.body.password);
 

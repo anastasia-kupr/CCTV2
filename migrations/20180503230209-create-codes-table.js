@@ -9,22 +9,14 @@ module.exports = {
             defaultValue: Sequelize.UUIDV4,
         },
         userID: {
-            type: Sequelize.STRING(512),
+            type: Sequelize.UUID,
             allowNull: false,
             unique: true,
             field: 'user_id',
         },
         code: {
             type: Sequelize.STRING(10),
-        },
-        createdAt: {
-            type: Sequelize.DATE,
-            field: 'created_at',
-        },
-        updatedAt: {
-            type: Sequelize.DATE,
-            field: 'updated_at',
-        },
+        }
       });
   },
 

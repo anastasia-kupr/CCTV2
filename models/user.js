@@ -39,18 +39,10 @@ module.exports = (sequelize, Sequelize) => {
             field: 'role',
             type: Sequelize.ENUM('user', 'admin'),
             default: 'user',
-        },
-        createdAt: {
-            type: Sequelize.DATE,
-            field: 'created_at',
-        },
-        updatedAt: {
-            type: Sequelize.DATE,
-            field: 'updated_at',
-        },
+        }
     }, {
             tableName: 'users',
-            timestamps: true,
+            timestamps: false,
             hooks: {
                 beforeValidate: async (user) => {
 
