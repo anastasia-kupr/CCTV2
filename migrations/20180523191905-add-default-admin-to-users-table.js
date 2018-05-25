@@ -10,7 +10,6 @@ const defaultAdmin = {
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    console.log('defaultAdmin=', defaultAdmin);
     await models.User.create(defaultAdmin);
   },
 

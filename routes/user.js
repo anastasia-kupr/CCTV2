@@ -33,7 +33,6 @@ router.put('/:uuid',
 router.get('/:uuid',
     authenticate(),
     errors.wrap(async (req, res) => {
-        console.log('router.get(/:uuid');
         const user = await models.User.findById(req.params.uuid, {raw: true});
         if (!user) throw errors.NotFoundError('User is not found');
         res.json(user);
@@ -41,7 +40,7 @@ router.get('/:uuid',
 );
 
 router.delete('/:uuid',
-    // authenticate(['admin']),
+    authenticate(['admin']),
     errors.wrap(async (req, res) => {
         const admins = await models.User.findAll({where: {role: 'admin'}});
         const user = await models.User.findById(req.params.uuid);

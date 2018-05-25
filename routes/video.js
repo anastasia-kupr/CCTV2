@@ -141,7 +141,6 @@ router.get('/start-record',
             }
         });
 
-        console.log('camera');
         camera = new MjpegCamera({
             name: 'myCamera',
             user: 'admin',
