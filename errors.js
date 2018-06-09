@@ -12,9 +12,6 @@ function InvalidInputError(message) {
 InvalidInputError.prototype = Object.create(Error.prototype);
 InvalidInputError.prototype.constructor = InvalidInputError;
 
-/**
- *
- */
 function UnauthorizedError(message) {
     if (!(this instanceof UnauthorizedError)) {
         return new UnauthorizedError(message);
@@ -27,9 +24,6 @@ function UnauthorizedError(message) {
 UnauthorizedError.prototype = Object.create(Error.prototype);
 UnauthorizedError.prototype.constructor = UnauthorizedError;
 
-/**
- *
- */
 function Forbidden(message) {
     if (!(this instanceof Forbidden)) {
         return new Forbidden(message);
@@ -41,9 +35,7 @@ function Forbidden(message) {
 }
 Forbidden.prototype = Object.create(Error.prototype);
 Forbidden.prototype.constructor = Forbidden;
-/**
- *
- */
+
 function InvalidToken(message) {
     if (!(this instanceof InvalidToken)) {
         return new InvalidToken(message);
@@ -56,9 +48,6 @@ function InvalidToken(message) {
 InvalidToken.prototype = Object.create(Error.prototype);
 InvalidToken.prototype.constructor = InvalidToken;
 
-/**
- *
- */
 function NotFoundError(message) {
     if (!(this instanceof NotFoundError)) {
         return new NotFoundError(message);
@@ -71,9 +60,6 @@ function NotFoundError(message) {
 NotFoundError.prototype = Object.create(Error.prototype);
 NotFoundError.prototype.constructor = NotFoundError;
 
-/**
- *
- */
 function NotAllowedError(message) {
     if (!(this instanceof NotAllowedError)) {
         return new NotAllowedError(message);

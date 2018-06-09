@@ -172,7 +172,7 @@ router.get('/stop-record',
         let ffmpeg = require('ffmpeg-stream').ffmpeg;
 
         const conv = ffmpeg();
-        const input = conv.input({f: 'image2pipe', r: 20});
+        const input = conv.input({f: 'image2pipe', r: 17});
         conv.output(videoFolder + '/video-' + time + '.mp4', {vcodec: 'libx264', pix_fmt: 'yuv420p'});
 
         frames.map(filename => () => {
